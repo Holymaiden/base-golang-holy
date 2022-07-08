@@ -10,8 +10,6 @@ import (
 )
 
 var (
-	jwtService services.JWTService = services.NewJWTService()
-
 	userService    services.UserService       = services.NewUserService(userRepository)
 	userController controllers.UserController = controllers.NewUserController(userService, jwtService)
 )

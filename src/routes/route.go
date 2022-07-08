@@ -2,7 +2,9 @@ package routes
 
 import (
 	"jwt/config"
+	"jwt/src/middlewares"
 	"jwt/src/repositorys"
+	"jwt/src/services"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -20,6 +22,7 @@ func init() {
 var (
 	db             *gorm.DB                   = config.SetupConnection()
 	userRepository repositorys.UserRepository = repositorys.NewUserRepository(db)
+	jwtService     services.JWTService        = services.NewJWTService()
 )
 
 func SetupRouter() *gin.Engine {
@@ -34,7 +37,7 @@ func SetupRouter() *gin.Engine {
 	r.Use(CORSMiddleware())
 
 	// Routes
-	v1 := r.Group("api/v1")
+	v1 := r.Group("api/v1", middlewares.AuthorizeJWT(jwtService))
 	{
 		userRoute(v1)
 	}

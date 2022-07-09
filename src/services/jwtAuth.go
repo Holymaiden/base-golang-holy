@@ -3,18 +3,19 @@ package services
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
 )
 
 type JWTService interface {
-	GenerateToken(userID string) string
+	GenerateToken(userID uint64) string
 	ValidateToken(token string) (*jwt.Token, error)
 }
 
 type jwtCustomClaim struct {
-	Email string `json:"email"`
+	ID string `json:"id"`
 	jwt.StandardClaims
 }
 
@@ -38,9 +39,10 @@ func getSecretKey() string {
 	return secretKey
 }
 
-func (j *jwtService) GenerateToken(Email string) string {
+func (j *jwtService) GenerateToken(userID uint64) string {
+	id := strconv.FormatUint(userID, 10)
 	claims := &jwtCustomClaim{
-		Email,
+		id,
 		jwt.StandardClaims{
 			Audience:  "",
 			ExpiresAt: time.Now().AddDate(1, 0, 0).Unix(),

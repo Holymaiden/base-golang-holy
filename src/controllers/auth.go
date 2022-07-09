@@ -41,7 +41,7 @@ func (c *authController) Login(ctx *gin.Context) {
 
 	result := c.authService.VerifyCredentials(validation.Email, validation.Password)
 	if user, ok := result.(models.User); ok {
-		token := c.jwtService.GenerateToken(user.Email)
+		token := c.jwtService.GenerateToken(user.ID)
 		tokenResponse := requests.LoginResponse{
 			ID:          user.ID,
 			Name:        user.Name,

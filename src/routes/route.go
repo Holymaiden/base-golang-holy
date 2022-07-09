@@ -2,7 +2,7 @@ package routes
 
 import (
 	"jwt/config"
-	"jwt/src/middlewares"
+	"jwt/src/controllers"
 	"jwt/src/repositorys"
 	"jwt/src/services"
 	"log"
@@ -23,6 +23,9 @@ var (
 	db             *gorm.DB                   = config.SetupConnection()
 	userRepository repositorys.UserRepository = repositorys.NewUserRepository(db)
 	jwtService     services.JWTService        = services.NewJWTService()
+
+	authServices   services.AuthService       = services.NewAuthService(userRepository)
+	authController controllers.AuthController = controllers.NewAuthController(authServices, jwtService)
 )
 
 func SetupRouter() *gin.Engine {
@@ -37,8 +40,13 @@ func SetupRouter() *gin.Engine {
 	r.Use(CORSMiddleware())
 
 	// Routes
-	v1 := r.Group("api/v1", middlewares.AuthorizeJWT(jwtService))
+	v1 := r.Group("api/v1")
 	{
+		auth := v1.Group("auth")
+		{
+			auth.POST("/login", authController.Login)
+			auth.POST("/register", authController.Register)
+		}
 		userRoute(v1)
 	}
 	return r

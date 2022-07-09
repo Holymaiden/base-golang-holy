@@ -14,10 +14,13 @@ import (
 type UserRepository interface {
 	All() []models.User
 	Find(id uint64) models.User
+	FindByEmail(email string) models.User
 	Create(model models.User) models.User
 	Update(model models.User) models.User
 	Delete(model models.User) models.User
 	Pagination(*requests.Pagination) (Result, int)
+
+	VerifyCredentials(email string) interface{}
 }
 
 type userConnection struct {
@@ -39,6 +42,12 @@ func (u *userConnection) All() []models.User {
 func (u *userConnection) Find(id uint64) models.User {
 	var user models.User
 	u.connection.First(&user, id)
+	return user
+}
+
+func (u *userConnection) FindByEmail(email string) models.User {
+	var user models.User
+	u.connection.Where("email = ?", email).First(&user)
 	return user
 }
 
@@ -139,4 +148,13 @@ func (u *userConnection) Pagination(p *requests.Pagination) (Result, int) {
 	p.ToRow = toRow
 
 	return Result{Result: p}, totalPages
+}
+
+func (db *userConnection) VerifyCredentials(email string) interface{} {
+	var user models.User
+	res := db.connection.Where("email = ?", email).First(&user)
+	if res.Error != nil {
+		return res.Error
+	}
+	return user
 }

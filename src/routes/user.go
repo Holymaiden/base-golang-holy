@@ -3,6 +3,7 @@ package routes
 import (
 	"jwt/src/controllers"
 	"jwt/src/helpers"
+	"jwt/src/middlewares"
 	"jwt/src/services"
 	"net/http"
 
@@ -15,7 +16,7 @@ var (
 )
 
 func userRoute(v1 *gin.RouterGroup) *gin.RouterGroup {
-	users := v1.Group("/user")
+	users := v1.Group("/user", middlewares.AuthorizeJWT(jwtService))
 	{
 		// users.GET("", userController.Index)
 		users.GET("", func(context *gin.Context) {
